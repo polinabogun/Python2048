@@ -12,6 +12,56 @@ pygame.display.set_caption('2048')
 timer = pygame.time.Clock()
 fps = 60
 font = pygame.font.Font('freesansbold.ttf', 24)
+import pygame
+import sys
+
+
+
+
+TEXT = (255, 246, 230)
+BACKGROUND = (187, 173, 160)
+
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Welcome to 2048!")
+
+font = pygame.font.Font( 'freesansbold.ttf', 18)
+
+def display_rules():
+    rules_text = [
+        "Welcome to 2048!",
+        "Rules:",
+        "1. Use arrow keys to move tiles.",
+        "2. Tiles with the same number merge",
+        " when they collide.",
+        "3. The goal is to reach the tile",
+        " with the number 2048.",
+        "",
+        "Press Space"
+    ]
+
+    y_position = 100
+
+    for line in rules_text:
+        text = font.render(line, True, TEXT)
+        text_rect = text.get_rect(center=(WIDTH // 2, y_position))
+        screen.blit(text, text_rect)
+        y_position += 40
+
+# Главный цикл программы
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                running = False  
+
+    
+    screen.fill(BACKGROUND)
+    display_rules()
+    pygame.display.flip()
+
 
 # 2048 game color library
 colors = {0: (204, 192, 179),
@@ -26,6 +76,8 @@ colors = {0: (204, 192, 179),
           512: (237, 200, 80),
           1024: (237, 197, 63),
           2048: (237, 194, 46),
+          4096: (255, 80, 75),
+          8192: (255, 34, 75),
           'light text': (249, 246, 242),
           'dark text': (119, 110, 101),
           'other': (0, 0, 0),
@@ -46,18 +98,21 @@ high_score = init_high
 
 # draw game over and restart text
 def draw_over():
-    pygame.draw.rect(screen, 'black', [50, 50, 300, 100], 0, 10)
-    game_over_text1 = font.render('Game Over!', True, 'white')
+    pygame.draw.rect(screen, 'dark grey', [50, 50, 300, 100], 0, 10)
+    game_over_text1 = font.render('Game Over!', True, 'red')
     game_over_text2 = font.render('Press Enter to Restart', True, 'white')
     screen.blit(game_over_text1, (130, 65))
     screen.blit(game_over_text2, (70, 105))
+
 
 
 # take your turn based on direction
 def take_turn(direc, board):
     global score
     merged = [[False for _ in range(4)] for _ in range(4)]
-    if direc == 'UP':
+
+    def UP(board):
+        global score
         for i in range(4):
             for j in range(4):
                 shift = 0
@@ -68,14 +123,18 @@ def take_turn(direc, board):
                     if shift > 0:
                         board[i - shift][j] = board[i][j]
                         board[i][j] = 0
-                    if board[i - shift - 1][j] == board[i - shift][j] and not merged[i - shift][j] \
-                            and not merged[i - shift - 1][j]:
+                    if (
+                        board[i - shift - 1][j] == board[i - shift][j]
+                        and not merged[i - shift][j]
+                        and not merged[i - shift - 1][j]
+                    ):
                         board[i - shift - 1][j] *= 2
                         score += board[i - shift - 1][j]
                         board[i - shift][j] = 0
                         merged[i - shift - 1][j] = True
 
-    elif direc == 'DOWN':
+    def DOWN(board):
+        global score
         for i in range(3):
             for j in range(4):
                 shift = 0
@@ -86,14 +145,18 @@ def take_turn(direc, board):
                     board[2 - i + shift][j] = board[2 - i][j]
                     board[2 - i][j] = 0
                 if 3 - i + shift <= 3:
-                    if board[2 - i + shift][j] == board[3 - i + shift][j] and not merged[3 - i + shift][j] \
-                            and not merged[2 - i + shift][j]:
+                    if (
+                        board[2 - i + shift][j] == board[3 - i + shift][j]
+                        and not merged[3 - i + shift][j]
+                        and not merged[2 - i + shift][j]
+                    ):
                         board[3 - i + shift][j] *= 2
                         score += board[3 - i + shift][j]
                         board[2 - i + shift][j] = 0
                         merged[3 - i + shift][j] = True
 
-    elif direc == 'LEFT':
+    def LEFT(board):
+        global score
         for i in range(4):
             for j in range(4):
                 shift = 0
@@ -103,14 +166,18 @@ def take_turn(direc, board):
                 if shift > 0:
                     board[i][j - shift] = board[i][j]
                     board[i][j] = 0
-                if board[i][j - shift] == board[i][j - shift - 1] and not merged[i][j - shift - 1] \
-                        and not merged[i][j - shift]:
+                if (
+                    board[i][j - shift] == board[i][j - shift - 1]
+                    and not merged[i][j - shift - 1]
+                    and not merged[i][j - shift]
+                ):
                     board[i][j - shift - 1] *= 2
                     score += board[i][j - shift - 1]
                     board[i][j - shift] = 0
                     merged[i][j - shift - 1] = True
 
-    elif direc == 'RIGHT':
+    def RIGHT(board):
+        global score
         for i in range(4):
             for j in range(4):
                 shift = 0
@@ -121,12 +188,28 @@ def take_turn(direc, board):
                     board[i][3 - j + shift] = board[i][3 - j]
                     board[i][3 - j] = 0
                 if 4 - j + shift <= 3:
-                    if board[i][4 - j + shift] == board[i][3 - j + shift] and not merged[i][4 - j + shift] \
-                            and not merged[i][3 - j + shift]:
+                    if (
+                        board[i][4 - j + shift] == board[i][3 - j + shift]
+                        and not merged[i][4 - j + shift]
+                        and not merged[i][3 - j + shift]
+                    ):
                         board[i][4 - j + shift] *= 2
                         score += board[i][4 - j + shift]
                         board[i][3 - j + shift] = 0
                         merged[i][4 - j + shift] = True
+
+    if direc == "UP":
+        UP(board)
+
+    elif direc == "DOWN":
+        DOWN(board)
+
+    elif direc == "LEFT":
+        LEFT(board)
+
+    elif direc == "RIGHT":
+        RIGHT(board)
+
     return board
 
 
@@ -178,7 +261,7 @@ def draw_pieces(board):
                 value_text = font.render(str(value), True, value_color)
                 text_rect = value_text.get_rect(center=(j * 95 + 57, i * 95 + 57))
                 screen.blit(value_text, text_rect)
-                pygame.draw.rect(screen, 'black', [j * 95 + 20, i * 95 + 20, 75, 75], 2, 5)
+                pygame.draw.rect(screen, 'dark grey', [j * 95 + 20, i * 95 + 20, 75, 75], 2, 5)
 
 
 # main game loop
