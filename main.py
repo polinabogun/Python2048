@@ -104,14 +104,8 @@ def draw_over():
     screen.blit(game_over_text1, (130, 65))
     screen.blit(game_over_text2, (70, 105))
 
-
-
-# take your turn based on direction
-def take_turn(direc, board):
-    global score
-    merged = [[False for _ in range(4)] for _ in range(4)]
-
-    def UP(board):
+def up (board):
+        merged = [[False for _ in range(4)] for _ in range(4)]
         global score
         for i in range(4):
             for j in range(4):
@@ -133,8 +127,10 @@ def take_turn(direc, board):
                         board[i - shift][j] = 0
                         merged[i - shift - 1][j] = True
 
-    def DOWN(board):
+
+def down (board):
         global score
+        merged = [[False for _ in range(4)] for _ in range(4)]
         for i in range(3):
             for j in range(4):
                 shift = 0
@@ -155,8 +151,10 @@ def take_turn(direc, board):
                         board[2 - i + shift][j] = 0
                         merged[3 - i + shift][j] = True
 
-    def LEFT(board):
+
+def left (board):
         global score
+        merged = [[False for _ in range(4)] for _ in range(4)]
         for i in range(4):
             for j in range(4):
                 shift = 0
@@ -176,8 +174,10 @@ def take_turn(direc, board):
                     board[i][j - shift] = 0
                     merged[i][j - shift - 1] = True
 
-    def RIGHT(board):
+
+def right (board):
         global score
+        merged = [[False for _ in range(4)] for _ in range(4)]
         for i in range(4):
             for j in range(4):
                 shift = 0
@@ -198,17 +198,21 @@ def take_turn(direc, board):
                         board[i][3 - j + shift] = 0
                         merged[i][4 - j + shift] = True
 
+# take your turn based on direction
+def take_turn(direc, board):
+    global score
+   
     if direc == "UP":
-        UP(board)
+     up (board)
 
     elif direc == "DOWN":
-        DOWN(board)
+        down (board)
 
     elif direc == "LEFT":
-        LEFT(board)
+        left (board)
 
     elif direc == "RIGHT":
-        RIGHT(board)
+        right (board)
 
     return board
 
